@@ -1,0 +1,8 @@
+{
+    "dataSources":{
+        "testDB":{
+            "type":"MSSQL",
+            "connectionString":"Server=172.25.144.57;Database=ERS.Source.ASUZ;User Id=conteq;Password=conteq;"
+        }
+    }
+}

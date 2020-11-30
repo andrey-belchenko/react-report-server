@@ -1,0 +1,56 @@
+import { createSlice, configureStore } from '@reduxjs/toolkit';
+import { useSelector } from 'react-redux';
+
+$itemInterfaces$
+
+
+interface IState {
+  $stateFields$
+}
+
+const counterSlice = createSlice({
+  name: 'reportData',
+  initialState: {
+    $stateFieldsValues$
+  },
+  reducers: {
+    $reducers$
+  },
+});
+
+
+const reportStore = configureStore({
+  reducer: counterSlice.reducer
+});
+export { reportStore };
+
+const baseUrl = "http://localhost:3004/datasets";
+
+const load = (dsName: string, params: any) => {
+  fetch(`${baseUrl}/${dsName}/data`,
+    {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(params)
+    }
+  )
+    .then(res => res.json())
+    .then(
+      (result) => {
+        let actions: any = counterSlice.actions;
+        reportStore.dispatch(actions[dsName](result));
+      }
+    );
+}
+
+const data = {
+  $dataItems$
+}
+export { data }
+
+
+
+

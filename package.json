@@ -1,0 +1,29 @@
+{
+  "name": "react-report-server",
+  "version": "1.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "bin": {
+    "react-report-server": "index.js"
+  },
+  "dependencies": {
+    "colors": "^1.4.0",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "mssql": "^6.2.3",
+    "nedb": "^1.8.0",
+    "node-sspi": "^0.2.8",
+    "simple-odata-server": "^1.1.1",
+    "simple-odata-server-nedb": "^1.0.0",
+    "yargs": "^13.2.4"
+  },
+  "devDependencies": {
+    "tslint": "^5.12.1",
+    "typescript": "^3.3.3"
+  }
+}

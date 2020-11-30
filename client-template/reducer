@@ -1,0 +1,3 @@
+$item$: (state: IState, action) => {
+    state.$item$ = action.payload;
+},
