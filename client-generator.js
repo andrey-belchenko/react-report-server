@@ -3,8 +3,11 @@ var utils = require("./utils");
 
 var templates = {};
 function getTemplate(name) {
+    var requireText = require('require-text');
+    
     if (!templates[name]) {
-        templates[name] = fs.readFileSync("./client-template/" + name, 'utf8');
+        templates[name] = requireText("./client-template/" + name, require);
+        // templates[name] = fs.readFileSync("./client-template/" + name, 'utf8');
     }
     return templates[name].slice();
 }

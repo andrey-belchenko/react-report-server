@@ -1,13 +1,21 @@
 {
   "name": "react-report-server",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andrey-belchenko/react-report-server.git"
+  },
+  "author": "andrey-belchenko",
   "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/andrey-belchenko/react-report-server/issues"
+  },
+  "homepage": "https://github.com/andrey-belchenko/react-report-server#readme",
   "bin": {
     "react-report-server": "index.js"
   },
@@ -18,6 +26,7 @@
     "mssql": "^6.2.3",
     "nedb": "^1.8.0",
     "node-sspi": "^0.2.8",
+    "require-text": "0.0.1",
     "simple-odata-server": "^1.1.1",
     "simple-odata-server-nedb": "^1.0.0",
     "yargs": "^13.2.4"
