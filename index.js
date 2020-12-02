@@ -19,7 +19,8 @@ require('yargs')
 
     }, function (argv) {
         let cg = require("./client-generator");
-        var fileName = '1.txt';
+        var fileName = 'src/reportapi.ts';
+
         cg.generate(fileName).then(() => {
             console.log(('report API client generated: ' + fileName).green);
             process.exit();
