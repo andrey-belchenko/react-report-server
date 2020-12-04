@@ -40,7 +40,10 @@ exports.configure = function () {
       },
       rmData: {
         dataSource: "dataMart",
-        query: getSql("rmData"),// "select  * from [data].[DimTask] where [ProjectUID]=@ProjectUID",
+        query: getSql("rmData"),
+        paramsExample: {
+          timeStep: "Month"
+        }
       },
       year: { example: 0 },
       month: { example: 0 },

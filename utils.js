@@ -25,20 +25,24 @@ async function executeSqlProcedure(conConfig, procName, params) {
         request.input(parName, params[parName]);
     }
     let result = await request.execute(procName);
-    return Promise.resolve(result.recordsets[0]);
+    return Promise.resolve(result.recordset);
 }
 async function executeSqlQuery(conConfig, query, params) {
-
     await sql.connect(conConfig);
     let request = new sql.Request();
     for (let parName in params) {
         request.input(parName, params[parName]);
     }
     let result = await request.query(query);
-    return Promise.resolve(result.recordsets[0]);
+    return Promise.resolve(result.recordset);
 }
 
 exports.queryData = async function (dataSetName, params) {
+    let data = queryData(dataSetName, params)
+    return Promise.resolve(data);
+}
+
+async function queryData(dataSetName, params) {
     let dataSet = getDataSet(dataSetName);
     let conConfig = getConConfig(dataSetName);
     let data = null;
@@ -47,7 +51,6 @@ exports.queryData = async function (dataSetName, params) {
     } else {
         data = await executeSqlQuery(conConfig, dataSet.query, params);
     }
-
     return Promise.resolve(data);
 }
 //TODO: need check
@@ -126,7 +129,6 @@ WHERE
 ORDER BY 
     [parameter_id]`;
     let paramsInfo = await executeSqlQuery(conConfig, paramsQuery);
-    let factParsStr = "";
     let q = "";
     let params = {}
     for (let info of paramsInfo) {
@@ -139,20 +141,26 @@ ORDER BY
 }
 
 async function loadFieldsMetadata(conConfig, query) {
-    
-    query = query.replace(/'/g, "''");
+
+    let squery = query.replace(/'/g, "''");
     let fieldsQuery = `
 SELECT 
     [name],
     system_type_name as [type] 
 FROM 
-    [sys].[dm_exec_describe_first_result_set](N'${query}', NULL, 0);`; 
+    [sys].[dm_exec_describe_first_result_set](N'${squery}', NULL, 0);`;
 
     let fieldsInfo = await executeSqlQuery(conConfig, fieldsQuery);
-    let fields = {}
-    for (let info of fieldsInfo) {
-        fields[info.name] = { "type": sqlToJsType(info["type"]), "srcType": info["type"] };
+
+    let fields = null;
+
+    if (fieldsInfo[0].name) {//if false, db cant determine metadata for the query. for example due to the use of a temp table
+        fields = {};
+        for (let info of fieldsInfo) {
+            fields[info.name] = { "type": sqlToJsType(info["type"]), "srcType": info["type"] };
+        }
     }
+
     return Promise.resolve(fields);
 }
 
@@ -181,6 +189,21 @@ exports.queryMetadata = async function (dataSetName) {
     }
 
     let fields = await loadFieldsMetadata(conConfig, query);
+    if (!fields) {
+        fields = {};
+        let factPars = {};
+        for (let parName in params) {
+            factPars[parName] = null;
+            if (dataSet.paramsExample) {
+                factPars[parName] = dataSet.paramsExample[parName]
+            }
+        }
+        var data = await queryData(dataSetName, params);
+        for (let colName in data.columns) {
+            let col = data.columns[colName];
+            fields[colName] = { "type": sqlToJsType(col.type.name), "srcType": col.type.name };
+        }
+    }
     return Promise.resolve({ params: params, fields: fields });
 
 }

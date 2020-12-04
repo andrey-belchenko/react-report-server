@@ -1,6 +1,5 @@
 
-begin
-DECLARE @timeStep NVARCHAR(100)= 'Month';
+DECLARE @tstep NVARCHAR(100)= @timeStep;
 
 DECLARE @startDate DATE= '2020-01-01';
 
@@ -62,7 +61,7 @@ WITH dt
                 CAST(YEAR([Date]) AS NVARCHAR) [YearLabel]
          FROM [dt])
      SELECT *,
-            CASE @timeStep
+            CASE @tstep
                 WHEN 'Week'
                 THEN [WeekLabel]
                 WHEN 'Month'
@@ -195,4 +194,3 @@ WITH p1
               [x].[PositionUID], 
               [x].[DepartmentName], 
               [x].[XLabel];
-end

@@ -27,34 +27,48 @@ app.use('/src', express.static('src'));
 
 var utils = require("./utils");
 app.use(express.json());
-app.use("/datasets", function (req, res) {
-    utils.readDataConfig();
-    var aurl = req.url.split('/');
-    var dsName = aurl[1];
-    var subUrl = aurl[2];
-    subUrl = subUrl || "-";
 
-    switch (subUrl) {
-        case 'data':
-            utils.queryData(dsName, req.body).then(function (data) {
+
+
+app.use("/datasets", async function (req, res) {
+    try {
+        utils.readDataConfig();
+        var aurl = req.url.split('/');
+        var dsName = aurl[1];
+        var subUrl = aurl[2];
+        subUrl = subUrl || "-";
+        let data = null;
+        switch (subUrl) {
+            case 'data':
+                data = await utils.queryData(dsName, req.body);
                 res.send(data);
-            });
-            break;
-        case 'metadata':
-            utils.queryMetadata(dsName).then(function (model) {
-                res.send(model);
-            })
-            break;
-        case '-':
-            if (dsName) {
-                res.send(["data", "metadata"]);
-            } else {
-                var dsList = utils.getRemoteDataSetsNames();
-                res.send(dsList);
-            }
+                // utils.queryData(dsName, req.body).then(function (data) {
+                //     res.send(data);
+                // });
+                break;
+            case 'metadata':
+                data = await utils.queryMetadata(dsName, req.body);
+                res.send(data);
+                // utils.queryMetadata(dsName).then(function (model) {
+                //     res.send(model);
+                // })
+                break;
+            case '-':
+                if (dsName) {
+                    res.send(["data", "metadata"]);
+                } else {
+                    var dsList = utils.getRemoteDataSetsNames();
+                    res.send(dsList);
+                }
 
-            break;
+                break;
+        }
+    } catch (err) {
+        console.log(err);
+        res.status(500);
+        res.send(err)
     }
+
 });
 
 app.use("/url", function (req, res, next) {
@@ -74,6 +88,7 @@ app.get("/test", (req, res, next) => {
 
 
 app.get("/url", (req, res, next) => {
+
 
     const os = require('os');
     const userInfo = os.userInfo();
@@ -101,6 +116,8 @@ app.get("/url", (req, res, next) => {
         out += filedata + "xxx" + __dirname + process.cwd();
         res.send(out);
     });
+
+
 });
 
 
