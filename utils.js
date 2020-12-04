@@ -139,12 +139,14 @@ ORDER BY
 }
 
 async function loadFieldsMetadata(conConfig, query) {
+    
+    query = query.replace(/'/g, "''");
     let fieldsQuery = `
 SELECT 
     [name],
     system_type_name as [type] 
 FROM 
-    [sys].[dm_exec_describe_first_result_set](N'${query}', NULL, 0);`; //TODO quotes escape. Replace ' with '' ?
+    [sys].[dm_exec_describe_first_result_set](N'${query}', NULL, 0);`; 
 
     let fieldsInfo = await executeSqlQuery(conConfig, fieldsQuery);
     let fields = {}
