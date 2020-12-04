@@ -61,7 +61,7 @@ var sqlToJsTypes = {
     "BIT": "boolean",
     "BOOLEAN": "boolean",
     "CHAR": "string",
-    "DATE": "date",
+    "DATE": "Date",
     "DECIMAL": "number",
     "DOUBLE": "number",
     "FLOAT": "number",
@@ -70,8 +70,8 @@ var sqlToJsTypes = {
     "LONGVARCHAR2": "string",
     "REAL": "number",
     "SMALLINT": "number",
-    "TIME": "date",
-    "TIMESTAMP": "date",
+    "TIME": "Date",
+    "TIMESTAMP": "Date",
     "TINYINT": "number",
     "VARBINARY": "string",
     "VARCHAR": "string"
@@ -131,6 +131,7 @@ ORDER BY
     let paramsInfo = await executeSqlQuery(conConfig, paramsQuery);
     let q = "";
     let params = {}
+    let factParsStr = "";
     for (let info of paramsInfo) {
         let parName = info.name.replace('@', '');
         params[parName] = { "type": sqlToJsType(info["type"]), "srcType": info["type"] };
