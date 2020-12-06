@@ -1,10 +1,11 @@
 var fs = require('fs');
+const { array } = require('yargs');
 var utils = require("./utils");
 
 var templates = {};
 function getTemplate(name) {
     var requireText = require('require-text');
-    
+
     if (!templates[name]) {
         templates[name] = requireText("./client-template/" + name, require);
         // templates[name] = fs.readFileSync("./client-template/" + name, 'utf8');
@@ -90,7 +91,23 @@ exports.generate = async function (outputFileName) {
                     return ft;
                 });
                 return it;
-            } else {
+            }
+            else if (typeof (item.example) == "object") {
+                let it = getTemplate("item-interface");
+                it = applyVar(it, "name", name + itemSuffix);
+                var val = item.example;
+                if (Array.isArray(item.example)) {
+                    val = val[0];
+                }
+                it = mapItemsObject(it, val, "fields", (name, item) => {
+                    let ft = getTemplate("field");
+                    ft = applyVar(ft, "name", name);
+                    ft = applyVar(ft, "type", typeof (item));
+                    return ft;
+                });
+                return it;
+            }
+            else {
                 return "";
             }
         }
@@ -99,10 +116,26 @@ exports.generate = async function (outputFileName) {
         (name, item) => {
             let type = "";
             if (item.dataSource) {
-                type = name + itemSuffix + "[]";
-            } else {
-                type = typeof (config.data[name].example);
+                type = name + itemSuffix;
+                if (!(item.isArray == false)) {
+                    type += "[]";
+                }
             }
+            else if (typeof (item.example) == "object") {
+                type = name + itemSuffix;
+                if (Array.isArray(item.example)) {
+                    type += "[]";
+                }
+            }
+            else {
+                type = typeof (item.example);
+                if (Array.isArray(item.example)) {
+                    type += "[]";
+                }
+            }
+
+
+
             let ft = getTemplate("field");
             ft = applyVar(ft, "name", name);
             ft = applyVar(ft, "type", type);
@@ -124,6 +157,14 @@ exports.generate = async function (outputFileName) {
                         break;
                     case "string":
                         value = '"' + val + '"';
+                        break;
+                    case "object":
+                        value = JSON.stringify(val);
+                        if (Array.isArray(val)) {
+                            value = `new Array<${name + itemSuffix}>()`;
+                        } else {
+                            value = "null";
+                        }
                         break;
                 }
             }
@@ -172,11 +213,11 @@ exports.generate = async function (outputFileName) {
         }
     );
 
-    
+
     fs.writeFileSync(outputFileName, mt);
 
     return Promise.resolve();
-    
+
 }
 
 // exports.generate();

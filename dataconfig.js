@@ -1,6 +1,6 @@
 var getSql = function (name) {
   let fs = require('fs');
-  var queryText = fs.readFileSync("./queries/" + name+".sql", 'utf8');
+  var queryText = fs.readFileSync("./queries/" + name + ".sql", 'utf8');
   return queryText;
 }
 
@@ -47,7 +47,8 @@ exports.configure = function () {
       },
       year: { example: 0 },
       month: { example: 0 },
-      ProjectUID: { example: "" }
+      ProjectUID: { example: "" },
+      timeStepList: { example: [{ id: '', name: '' }] }
     }
   }
 };

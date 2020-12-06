@@ -1,4 +1,4 @@
 $name$: {
     useValue: () => useSelector((state: IState) => state.$name$),
-    set: (value: $type$) => reportStore.dispatch(counterSlice.actions.$name$(value))
+    set: (value: $type$) => reportStore.dispatch(slice.actions.$name$(value))
 },

@@ -8,7 +8,7 @@ interface IState {
   $stateFields$
 }
 
-const counterSlice = createSlice({
+const slice = createSlice({
   name: 'reportData',
   initialState: {
     $stateFieldsValues$
@@ -20,7 +20,7 @@ const counterSlice = createSlice({
 
 
 const reportStore = configureStore({
-  reducer: counterSlice.reducer
+  reducer: slice.reducer
 });
 export { reportStore };
 
@@ -40,7 +40,7 @@ const load = (dsName: string, params: any) => {
     .then(res => res.json())
     .then(
       (result) => {
-        let actions: any = counterSlice.actions;
+        let actions: any = slice.actions;
         reportStore.dispatch(actions[dsName](result));
       }
     );
