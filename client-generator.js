@@ -1,4 +1,5 @@
 var fs = require('fs');
+const { type } = require('os');
 const { array } = require('yargs');
 var utils = require("./utils");
 
@@ -64,7 +65,28 @@ function mapItemsObject(template, itemsObject, targetVarName, callback) {
     template = applyVar(template, targetVarName, sValue);
     return template;
 }
-
+function getExempleType(value, objectName) {
+    let type = "";
+    if (typeof (value) == "object") {
+        if (Object.prototype.toString.call(value) === "[object Date]") {
+            type = "Date | undefined";
+        } else {
+            type = objectName + itemSuffix;
+            if (Array.isArray(value)) {
+                type += "[]";
+            }
+        }
+    }
+    else {
+        type = typeof (value);
+        if (Array.isArray(value)) {
+            type += "[]";
+        } else {
+            type += " | undefined";
+        }
+    }
+    return type;
+}
 exports.generate = async function (outputFileName) {
     utils.readDataConfig();
     let config = utils.getDataConfig();
@@ -92,7 +114,7 @@ exports.generate = async function (outputFileName) {
                 });
                 return it;
             }
-            else if (typeof (item.example) == "object") {
+            else if (typeof (item.example) == "object" && !(Object.prototype.toString.call(item.example) === "[object Date]")) {
                 let it = getTemplate("item-interface");
                 it = applyVar(it, "name", name + itemSuffix);
                 var val = item.example;
@@ -117,25 +139,13 @@ exports.generate = async function (outputFileName) {
             let type = "";
             if (item.dataSource) {
                 type = name + itemSuffix;
-                if (!(item.isArray == false)) {
-                    type += "[]";
-                }
-            }
-            else if (typeof (item.example) == "object") {
-                type = name + itemSuffix;
-                if (Array.isArray(item.example)) {
+                if (!item.isSingle) {//TODO: test
                     type += "[]";
                 }
             }
             else {
-                type = typeof (item.example);
-                if (Array.isArray(item.example)) {
-                    type += "[]";
-                }
+                type = getExempleType(item.example, name);
             }
-
-
-
             let ft = getTemplate("field");
             ft = applyVar(ft, "name", name);
             ft = applyVar(ft, "type", type);
@@ -150,23 +160,31 @@ exports.generate = async function (outputFileName) {
                 value = `new Array<${name + itemSuffix}>()`;
             } else {
                 var val = config.data[name].example;
-                var type = typeof (val);
-                switch (type) {
-                    case "number":
-                        value = val.toString();
-                        break;
-                    case "string":
-                        value = '"' + val + '"';
-                        break;
-                    case "object":
-                        value = JSON.stringify(val);
-                        if (Array.isArray(val)) {
-                            value = `new Array<${name + itemSuffix}>()`;
-                        } else {
-                            value = "null";
-                        }
-                        break;
+                if (Array.isArray(val)) {
+                    value = `new Array<${name + itemSuffix}>()`;
+                } else {
+                    value = "undefined";
                 }
+                // var type = typeof (val);
+                // switch (type) {
+                //     case "number":
+                //         value = val.toString();
+                //         break;
+                //     case "string":
+                //         value = '"' + val + '"';
+                //         break;
+                //     case "object":
+                //         if (Array.isArray(val)) {
+                //             value = `new Array<${name + itemSuffix}>()`;
+                //         }
+                //         else if (Object.prototype.toString.call(val) === "[object Date]") {
+                //             value = 'new Date()';
+                //         }
+                //         else {
+                //             value = "null";
+                //         }
+                //         break;
+                // }
             }
             let ft = getTemplate("field-value");
             ft = applyVar(ft, "name", name);
@@ -194,7 +212,7 @@ exports.generate = async function (outputFileName) {
                 ft = mapItemsObject(ft, metadata.params, "params", (name, item) => {
                     let it = getTemplate("param");
                     it = applyVar(it, "name", name);
-                    it = applyVar(it, "type", item.type);
+                    it = applyVar(it, "type", item.type+" | undefined");
                     return it;
                 });
                 ft = mapItemsObject(ft, metadata.params, "values", (name) => {
@@ -204,7 +222,7 @@ exports.generate = async function (outputFileName) {
                 });
             } else {
                 ft = getTemplate("local-item");
-                let type = typeof (config.data[name].example);
+                let type = getExempleType(config.data[name].example, name);
                 ft = applyVar(ft, "type", type);
             }
             ft = applyVar(ft, "name", name);
